@@ -1,0 +1,10 @@
+- Length: Estimate the length using word counts for a 3 to 4 pages with 12-point font, double space
+- First, think about the main points you want to make for each sections. Consider that information is a directed acyclic graph, and that pieces of information can depend on other pieces of information. Make sure that the order of the sections and their contents respects these dependencies.
+- Confirm the sections with the user.For each section: write the section with clarity, coherence, and flow. Use maximum 240 to 300 words per paragraph.
+- Follow APA 7 formatting rules strictly.
+- Tone: Neutral, concise, objective, and clear. Follow academic writing standards.
+- Vocabulary: Elevate repetitive vocabulary, but keep the tone strictly objective and academic. Do not use overly dramatic or flowery language. Use simple and direct phrasing. Rephrase instead of using complicated idioms.
+- Punctuation Constraints: Do not use quotation marks. Do not use hyphens between sentences, instead use commas, rephrase the sentence, explain the concept, or use which/that. If a concept typically requires a hyphen or a quote, rephrase the sentence or explain the concept instead.
+- Sentence Variety: Combine short, choppy sentences into a mix of complex and simple sentences to improve the rhythm.
+- Citation Grouping: Synthesize the citations naturally. Use different styles of in-text citation such as : Narrative Citation,Parenthetical Citation, and Citing Direct Quotes
+- Factual Integrity: Do not add any outside facts, arguments, or information. Preserve the fact from the citation source
