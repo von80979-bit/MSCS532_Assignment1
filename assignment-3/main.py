@@ -5,6 +5,7 @@ from task2.demo import run_task2
 
 TASKS = {
     "1": ("Randomized vs. Deterministic Quicksort", run_task1),
+    "2": ("Hash Table with Chaining and Universal Hashing", run_task2),
 }
 
 
