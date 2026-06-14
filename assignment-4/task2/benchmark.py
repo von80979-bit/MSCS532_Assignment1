@@ -5,6 +5,7 @@ operations per measurement to reduce noise. It prints a table and saves a plot o
 size on a log-scaled x-axis, where an O(log n) cost shows up as a slowly rising near-straight line.
 """
 
+import os
 import random
 from time import perf_counter
 
@@ -19,7 +20,7 @@ HEAP_SIZES = [1000, 5000, 10000, 50000, 100000]
 OPERATIONS_PER_MEASUREMENT = 1000
 MAX_PRIORITY = 10**6
 REKEY_STEP = 1000
-PLOT_FILENAME = "operation_scaling.png"
+PLOT_FILENAME = os.path.join(os.path.dirname(os.path.abspath(__file__)), "operation_scaling.png")
 
 MICROSECONDS_PER_SECOND = 1_000_000
 

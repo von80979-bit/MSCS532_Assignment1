@@ -1,12 +1,9 @@
-"""Correctness checks and run-time comparison of heapsort against randomized
-quicksort and mergesort across several input sizes and distributions.
+"""Correctness checks and run-time comparison of heapsort against randomized quicksort and mergesort across several input
+sizes and distributions.
 
-Run from inside the task1 folder:
-    python3 benchmark.py
-The script prints a table per distribution and saves the plot as
-performance_metrics.png.
 """
 
+import os
 import random
 import sys
 import time
@@ -16,14 +13,15 @@ import matplotlib
 # Use a non-interactive backend so the plot saves without a display.
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-
 from heapsort import heapsort
 from merge_sort import merge_sort
 from randomized_quicksort import randomized_quicksort
 
 INPUT_SIZES = [1000, 2500, 5000, 10000, 20000, 30000, 40000, 50000]
 TRIALS_PER_MEASUREMENT = 3
-PLOT_FILENAME = "performance_metrics.png"
+PLOT_FILENAME = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "performance_metrics.png"
+)
 
 # Randomized quicksort recurses at most a few dozen levels deep on these inputs,
 # but the limit is raised as a safety net against an unlucky run.

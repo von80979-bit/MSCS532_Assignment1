@@ -1,7 +1,7 @@
 """Heapsort: sort a list in place in O(n log n) using a max-heap.
 
 The array is first arranged into a max-heap, so the largest element sits at the root. That root is swapped to the end of
-the unsorted region, the heap shrinks by one, and the new root is sifted down to restore the heap. Repeating this places
+the unsorted region, the heap shrinks by one, and the new root is bubbled down to restore the heap. Repeating this places
 each maximum into its final sorted position from the back of the array forward.
 """
 
@@ -19,7 +19,12 @@ def heapsort(array):
     return array
 
 
-if __name__ == "__main__":
+def run_demo():
+    """Print a short demonstration that the sort works."""
     sample = [5, 3, 8, 1, 9, 2, 7, 4, 6, 0]
     print("input :", sample)
     print("sorted:", heapsort(list(sample)))
+
+
+if __name__ == "__main__":
+    run_demo()
