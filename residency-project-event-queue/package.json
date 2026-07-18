@@ -7,7 +7,9 @@
   "scripts": {
     "start": "node src/main.js",
     "demo:viz": "node src/demo-viz.js",
+    "demo:recovery": "node src/demo-recovery.js",
     "demo:memory": "node --expose-gc src/demo-memory.js",
+    "demo:benchmark": "node --expose-gc src/benchmark.js",
     "test": "node --test src/*.test.js > /dev/null 2>&1"
   },
   "license": "MIT"

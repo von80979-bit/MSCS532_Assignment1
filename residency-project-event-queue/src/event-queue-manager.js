@@ -15,6 +15,11 @@ import { Queue } from './queue.js';
  *     it) and only resolves once that queue drains below the low-water mark. `EventEmitter` has no
  *     native pause/resume, so this Promise gate emulates Node Streams backpressure — a fast producer
  *     or a hot key can never grow a queue without bound, and no events are dropped.
+ *
+ * Opt B (Phase 3) — recoverability. A failing head no longer stalls its queue. On `fail` (a consumer nack) the
+ * head is redelivered in place after an exponential backoff (capped), up to `maxAttempts` deliveries; an event
+ * that exhausts its attempts is moved to its queue's dead-letter list (`dlq`) exactly once and the queue advances.
+ * Only the failing queue backs off — every other queue keeps dispatching, so one bad event never stalls the system.
  */
 export class EventQueueManager extends EventEmitter {
   /**
@@ -22,8 +27,16 @@ export class EventQueueManager extends EventEmitter {
    * @param {number}  [opts.highWater=Infinity] - per-queue size at/above which `enqueue` suspends the producer.
    * @param {number}  [opts.lowWater=0]         - per-queue size at/below which a suspended producer resumes.
    * @param {boolean} [opts.evict=true]         - release a queue's `Map` entry when it drains (set false for the naive baseline).
+   * @param {number}  [opts.maxAttempts=5]      - deliveries a failing head gets before it is dead-lettered.
+   * @param {number}  [opts.backoffBase=100]    - base backoff in ms; the Nth retry waits `backoffBase * 2^(N-1)`.
+   * @param {number}  [opts.backoffCap=30000]   - backoff ceiling in ms (30s).
+   * @param {(fn: () => void, ms: number) => void} [opts.schedule] - timer used for backoff (tests inject a deterministic one).
    */
-  constructor({ highWater = Infinity, lowWater = 0, evict = true } = {}) {
+  constructor({
+    highWater = Infinity, lowWater = 0, evict = true,
+    maxAttempts = 5, backoffBase = 100, backoffCap = 30000,
+    schedule = (fn, ms) => setTimeout(fn, ms),
+  } = {}) {
     super();
 
     /** @type {Map<string, Queue>} one queue per ordering key. */
@@ -47,11 +60,28 @@ export class EventQueueManager extends EventEmitter {
     /** @private whether to release a queue's `Map` entry on drain. */
     this.evict = evict;
 
-    /** @private key -> { promise, resolve } for a producer suspended on a full queue. */
+    /** @private key -> { promise, resolve } for a producer suspended on a full queue. Ideally we can make the EventQueueManager to extend the Stream library
+     * but it would require more changes
+     */
     this._gates = new Map();
 
     /** @private count of distinct keys ever seen — survives eviction, unlike queueCount(). */
     this._keysSeen = 0;
+
+    /** @private max deliveries before a head is dead-lettered (Opt B). */
+    this.maxAttempts = maxAttempts;
+
+    /** @private base backoff (ms) doubled each retry. */
+    this.backoffBase = backoffBase;
+
+    /** @private backoff ceiling (ms). */
+    this.backoffCap = backoffCap;
+
+    /** @private timer used to defer a redelivery (injectable for deterministic tests). */
+    this.schedule = schedule;
+
+    /** @private key -> array of dead-lettered events. Keyed here (not on the Queue) so it survives eviction. */
+    this.dlqs = new Map();
   }
 
   /**
@@ -96,6 +126,8 @@ export class EventQueueManager extends EventEmitter {
 
   /**
    * @private Resume a producer suspended on this key once its queue has drained to/below the low-water mark.
+   * The gates is what we mimic the Stream pause and resume. The promise will be resolve as long as the queue size is below
+   * the low water mark this give the consumer a buffer of highWaterMark - lowWarterMark events
    * @param {string} key
    * @param {Queue} queue
    */
@@ -142,6 +174,54 @@ export class EventQueueManager extends EventEmitter {
   }
 
   /**
+   * The failure (nack) path — Opt B. A consumer errored on the queue head. The head is NOT advanced past: it is
+   * redelivered in place after an exponential backoff (capped at `backoffCap`), up to `maxAttempts` deliveries.
+   * On the final failure the exhausted event is moved to its queue's dead-letter list exactly once and the queue
+   * advances (evict or dispatch the next head). The backoff is scheduled off the event loop, so every other queue
+   * keeps dispatching while this one waits — one bad event never stalls the system.
+   * @param {import('./event.js').Event} event
+   */
+  fail(event) {
+    const queue = this.queues.get(event.key);
+    if (!queue || queue.peek() !== event) return; // stale/duplicate nack — the head already moved on; ignore just for safety. This never happen
+    event.attempts += 1;
+    if (event.attempts >= this.maxAttempts) {
+      queue.dequeue();                 // exhausted: drop the head...
+      this.count -= 1;
+      this._deadLetter(event);         // ...into the dead-letter list exactly once...
+      this._resumeIfDrained(event.key, queue);
+      if (this.evict && queue.isEmpty()) {
+        this.queues.delete(event.key); // ...and advance: evict the drained queue...
+      } else {
+        this.dispense(queue.peek());   // ...or dispatch the next head.
+      }
+      this._checkDone();
+    } else {
+      // Redeliver the same, still-at-head event after a backoff. The head cannot change while it waits (only an ack
+      // removes it, and it was nacked, not acked), so re-dispatch is safe.
+      this.schedule(() => {
+        event.reset();          // re-arm the per-delivery guard so the head can be consumed again
+        this.dispense(event);   // re-emit the unchanged head; other queues ran freely during the wait
+      }, this._backoffFor(event.attempts));
+    }
+  }
+
+  /** @private exponential backoff (ms) for the Nth delivery attempt (1-based), capped at `backoffCap`. */
+  _backoffFor(attempt) {
+    return Math.min(this.backoffCap, this.backoffBase * 2 ** (attempt - 1));
+  }
+
+  /** @private append an exhausted event to its key's dead-letter list, creating the list on first sighting. */
+  _deadLetter(event) {
+    let dlq = this.dlqs.get(event.key);
+    if (!dlq) {
+      dlq = [];
+      this.dlqs.set(event.key, dlq);
+    }
+    dlq.push(event);
+  }
+
+  /**
    * Signal that the producer has submitted its last event. Only after this can a zero pending count be treated as
    * real completion.
    */
@@ -177,5 +257,20 @@ export class EventQueueManager extends EventEmitter {
   /** @returns {number} events enqueued but not yet acked. */
   pending() {
     return this.count;
+  }
+
+  /**
+   * @param {string} key
+   * @returns {import('./event.js').Event[]} the key's dead-letter list — events that exhausted their attempts (empty if none).
+   */
+  dlq(key) {
+    return this.dlqs.get(key) ?? [];
+  }
+
+  /** @returns {number} total dead-lettered events across all keys. */
+  dlqCount() {
+    let total = 0;
+    for (const list of this.dlqs.values()) total += list.length;
+    return total;
   }
 }

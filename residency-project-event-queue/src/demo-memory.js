@@ -80,6 +80,8 @@ async function runHotKey(optimized) {
   consumer.subscribe();
 
   let peakQueueSize = 0;
+  gc();
+  const baseHeap = process.memoryUsage().heapUsed;
   const sample = () => {
     const q = manager.queues.get('hot');
     if (q && q.size > peakQueueSize) peakQueueSize = q.size;
@@ -95,7 +97,9 @@ async function runHotKey(optimized) {
   producer.producerDone();
   await manager.whenDone();
   clearInterval(timer);
-  return { processed, peakQueueSize };
+
+  gc();
+  return { processed, peakQueueSize, heapDelta: process.memoryUsage().heapUsed - baseHeap };
 }
 
 // --- scenario 2: transient keys + eviction -----------------------------------
@@ -149,16 +153,16 @@ async function main() {
   header('Scenario 1 — hot key flooded by a fast producer (flow-control gate)');
   const hotOff = await quiet(() => runHotKey(false));
   const hotOn = await quiet(() => runHotKey(true));
-  console.log(`  WITHOUT backpressure : peak queue size = ${paint(fgRed, String(hotOff.peakQueueSize).padStart(6))}   (processed ${hotOff.processed}/${N})`);
-  console.log(`  WITH    backpressure : peak queue size = ${paint(fgGreen, String(hotOn.peakQueueSize).padStart(6))}   (processed ${hotOn.processed}/${N})`);
+  console.log(`  WITHOUT backpressure: peak queue size = ${paint(fgRed, String(hotOff.peakQueueSize).padStart(6))}  heap retained = ${mb(hotOff.heapDelta)} MB   (processed ${hotOff.processed}/${N})`);
+  console.log(`  WITH    backpressure: peak queue size = ${paint(fgGreen, String(hotOn.peakQueueSize).padStart(6))}  heap retained = ${mb(hotOn.heapDelta)} MB   (processed ${hotOn.processed}/${N})`);
   console.log(paint(fgCyan, `  => queue bounded at the high-water mark (${HIGH_WATER}) instead of growing to N (${N}); zero events dropped.`));
 
   // Scenario 2 — transient keys + eviction.
   header('Scenario 2 — many transient keys, one event each (empty-queue eviction)');
   const evOff = await quiet(() => runTransientKeys(false));
   const evOn = await quiet(() => runTransientKeys(true));
-  console.log(`  WITHOUT eviction : retained queues after drain = ${paint(fgRed, String(evOff.retainedQueues).padStart(6))}   heap retained = ${mb(evOff.heapDelta)} MB   (processed ${evOff.processed}/${N})`);
-  console.log(`  WITH    eviction : retained queues after drain = ${paint(fgGreen, String(evOn.retainedQueues).padStart(6))}   heap retained = ${mb(evOn.heapDelta)} MB   (processed ${evOn.processed}/${N})`);
+  console.log(`  WITHOUT eviction: retained queues after drain = ${paint(fgRed, String(evOff.retainedQueues).padStart(6))}   heap retained = ${mb(evOff.heapDelta)} MB   (processed ${evOff.processed}/${N})`);
+  console.log(`  WITH    eviction: retained queues after drain = ${paint(fgGreen, String(evOn.retainedQueues).padStart(6))}   heap retained = ${mb(evOn.heapDelta)} MB   (processed ${evOn.processed}/${N})`);
   console.log(paint(fgCyan, `  => Map tracks O(active keys) (${evOn.retainedQueues}) instead of every key ever seen (${evOff.retainedQueues}).`));
 
   console.log('');

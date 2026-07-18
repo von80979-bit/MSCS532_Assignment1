@@ -39,6 +39,49 @@ Override the default command with the test script:
 ```bash
 docker run --rm event-queue npm test
 ```
+## Optimization demos & benchmark
+
+These reproduce the three results cited in the report.
+Each can be run with Docker (no local Node needed) or directly with Node.js 20+. The `--expose-gc`
+flag needed for the memory/benchmark reads is already baked into the npm scripts.
+
+### Recovery demo — redelivery, backoff, DLQ (report Figure 3)
+
+Drives random and poison-pill failures; surfaces the per-key dead-letter section in the dashboard.
+
+```bash
+# Docker (interactive TUI — needs -it)
+docker run --rm -it event-queue npm run demo:recovery
+
+```
+
+### Memory demo — eviction + flow control (report Figure 4)
+
+Compares peak queue size and retained queues/heap with vs without the optimization. Configure the
+event count per run with `--n` (the report cites `--n 30000`).
+- `--n`: number of events
+
+```bash
+# Docker
+docker run --rm event-queue npm run demo:memory -- --n 30000
+
+```
+
+### Benchmark — distributed vs single queue (report Figure 2)
+
+Sweeps growing datasets, printing total processing time per mode plus the retry scenario. Optional
+flags:   `--payload`, `--retry-frac`, `--json`.
+- `--key`: number of unique ordering keys
+- `--depth`: number of events per ordering key
+- `--retry-frac`:  the failure rate default to 20%
+- `--json`: return the json report
+
+```bash
+# Docker
+docker run --rm event-queue npm run demo:benchmark -- --payload 5 --depth 30
+
+```
+
 ## Project layout
 
 ```
@@ -62,4 +105,8 @@ With Node.js 20+ installed locally:
 ```bash
 npm start   # run the demo
 npm test    # run the tests
+npm run demo:viz # run the main demo with visualization
+npm run demo:benchmark # run the benchmark
+npm run demo:memory -- --n 30000 # run the memory optimization demo
+npm run demo:recovery -- --payload 5 --depth 30 # run the recovery optimization demo
 ```
