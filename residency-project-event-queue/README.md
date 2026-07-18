@@ -16,7 +16,7 @@ docker build -t event-queue .
 
 This produces an image tagged `event-queue` containing the source, the demo driver, and the test suite (all under `src/`).
 
-## 2. Run the demo
+## 2. Run the demo with log
 
 The image's default command runs the demo driver:
 
@@ -24,7 +24,15 @@ The image's default command runs the demo driver:
 docker run --rm event-queue
 ```
 
-## 3. Run the tests
+## 3. Run the demo with visualization 
+
+The image's default command runs the demo driver:
+
+```bash
+docker run --rm -it event-queue npm run demo:viz
+```
+
+## 4. Run the tests
 
 Override the default command with the test script:
 

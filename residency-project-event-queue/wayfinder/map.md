@@ -14,7 +14,7 @@ decide about *what* to build or *how* each report is structured.
 
 ## Notes
 
-**Domain.** Real-time, keyed event processing, implemented in **Node.js /
+**Domain.** Real-time, order event processing with orderking key, implemented in **Node.js /
 JavaScript** (the user's original EventStream prototype) and packaged as a **Docker
 image** so the demo runs reproducibly. A hash table (JS `Map`) keys each event's
 ordering key to its own FIFO queue. Events sharing a key are processed strictly in

@@ -6,6 +6,7 @@
   "main": "src/main.js",
   "scripts": {
     "start": "node src/main.js",
+    "demo:viz": "node src/demo-viz.js",
     "test": "node --test src/*.test.js > /dev/null 2>&1"
   },
   "license": "MIT"
