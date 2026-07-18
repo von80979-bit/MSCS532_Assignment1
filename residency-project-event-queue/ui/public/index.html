@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Event Queue — Live View</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Distributed Event Queue</h1>
+    <p class="subtitle">
+      Each track below is one ordering key (queue). A token travels the track while its event
+      is processing — only one token travels per track at a time, and its ack releases the
+      next one waiting (backpressure: strictly sequential per key). Watch multiple tracks:
+      they travel at the same time, independently — that's the concurrency across keys.
+    </p>
+    <ul class="legend">
+      <li><span class="swatch waiting"></span> Waiting (FIFO line)</li>
+      <li><span class="swatch active"></span> Traveling = processing now</li>
+      <li><span class="swatch done"></span> Arrived / acked</li>
+    </ul>
+    <div class="controls">
+      <button id="run-btn">Run demo</button>
+      <span id="banner" class="banner"></span>
+    </div>
+  </header>
+
+  <main id="lanes"></main>
+
+  <footer>
+    <div id="log"></div>
+  </footer>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>

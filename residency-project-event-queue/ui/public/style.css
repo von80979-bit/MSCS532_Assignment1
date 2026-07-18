@@ -1,0 +1,248 @@
+/*
+ * Light theme, standard production color system (validated categorical
+ * palette + fixed status colors — see ui/public/app.js PALETTE comment for
+ * the source). Categorical hues identify a lane (ordering key) and stay
+ * fixed once assigned; status green is reserved for "done" and never reused
+ * as a lane color.
+ */
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --ink-primary: #0b0b0b;
+  --ink-secondary: #52514e;
+  --ink-muted: #898781;
+  --hairline: #e1e0d9;
+  --baseline: #c3c2b7;
+  --border-ring: rgba(11, 11, 11, 0.1);
+  --status-good: #0ca30c;
+  --status-good-text: #006300;
+  --accent: #2a78d6;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+header {
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface);
+}
+
+h1 { margin: 0 0 0.25rem; font-size: 1.3rem; }
+.subtitle { margin: 0 0 0.75rem; color: var(--ink-secondary); font-size: 0.85rem; max-width: 62ch; }
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin: 0 0 0.85rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.78rem;
+  color: var(--ink-secondary);
+}
+.legend li { display: flex; align-items: center; gap: 0.4rem; }
+.legend .swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex: none;
+}
+.legend .swatch.waiting { background: var(--baseline); }
+.legend .swatch.active { background: var(--accent); }
+.legend .swatch.done { background: var(--status-good); }
+
+.controls { display: flex; align-items: center; gap: 0.75rem; }
+
+#run-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: filter 0.15s ease, opacity 0.2s ease;
+}
+#run-btn:hover:not(:disabled) { filter: brightness(1.08); }
+#run-btn:disabled { opacity: 0.5; cursor: default; }
+
+.banner {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--status-good-text);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.banner.show { opacity: 1; }
+
+main#lanes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.lane {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  padding: 0.65rem 0.85rem;
+  box-shadow: 0 1px 2px var(--border-ring);
+}
+
+.lane-header {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.lane-counts {
+  margin-left: auto;
+  color: var(--ink-muted);
+  font-weight: 400;
+  font-size: 0.75rem;
+}
+
+/* The track is a literal road: a waiting stack (FIFO line) feeds a single
+   travelling token, which lands in the done stack. Motion duration is set
+   inline per-token to the event's real payload ms, so the glide is synced
+   to the actual simulated work happening server-side. */
+.lane-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.waiting-stack {
+  flex: none;
+  width: 92px;
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+  gap: 4px;
+}
+
+.waiting-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--lane-color, var(--accent));
+  opacity: 0.55;
+  animation: dot-in 0.2s ease;
+  flex: none;
+}
+
+@keyframes dot-in {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 0.55; transform: scale(1); }
+}
+
+.track {
+  position: relative;
+  flex: 1 1 auto;
+  height: 46px;
+  background: var(--page);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.track-line {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 50%;
+  height: 0;
+  border-top: 2px dashed var(--hairline);
+}
+
+.token {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 2px solid var(--lane-color, var(--accent));
+  font-size: 0.68rem;
+  white-space: nowrap;
+  max-width: 78%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: left linear;
+  animation: travel-pulse 1s ease-in-out infinite;
+}
+
+.token .seq { color: var(--ink-muted); }
+
+.token.done {
+  animation: none;
+  border-color: var(--status-good);
+}
+
+@keyframes travel-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--lane-color, var(--accent)) 30%, transparent); }
+  50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--lane-color, var(--accent)) 14%, transparent); }
+}
+
+.done-stack {
+  flex: none;
+  width: 92px;
+  display: flex;
+  gap: 4px;
+}
+
+.check {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--status-good-text);
+  animation: pop 0.3s ease;
+  flex: none;
+}
+
+@keyframes pop {
+  from { transform: scale(0.4); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+footer {
+  padding: 0 1.5rem 1.5rem;
+}
+
+#log {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  height: 140px;
+  overflow-y: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+}
+
+#log div:last-child { color: var(--ink-primary); }

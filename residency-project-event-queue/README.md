@@ -55,3 +55,26 @@ With Node.js 20+ installed locally:
 npm start   # run the demo
 npm test    # run the tests
 ```
+
+## Live UI (optional)
+
+`ui/` is a standalone visualization for presentations — it does not change or wrap
+anything under `src/`, it just subscribes to the same manager/consumer emissions the
+CLI demo prints. It has no third-party dependencies (plain `http` + `EventSource`).
+
+```bash
+npm run ui   # serves http://localhost:4173
+```
+
+Open the URL and click "Run demo" to watch events move through queued → processing →
+done per key, live, in swim lanes color-matched to the terminal output.
+
+### Via Docker
+
+```bash
+docker build -t event-queue .
+docker run --rm -p 4173:4173 event-queue npm run ui
+```
+
+The `-p 4173:4173` maps the container's port to your host — without it the server
+runs but nothing outside the container can reach it. Open `http://localhost:4173`.
