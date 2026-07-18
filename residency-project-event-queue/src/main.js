@@ -41,7 +41,8 @@ async function main() {
   producer.producerDone();
 
   await manager.whenDone();
-  logger.warn(`=== all ${manager.queueCount()} queues drained; pending=${manager.pending()} ===`);
+  // queueCount is 0 here now that drained queues are evicted (Opt A), so report distinct keys seen instead.
+  logger.warn(`=== all ${manager.keysSeenCount()} queues drained; pending=${manager.pending()} ===`);
 }
 
 main().catch((err) => {

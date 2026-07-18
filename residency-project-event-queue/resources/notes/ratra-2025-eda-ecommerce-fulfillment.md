@@ -22,5 +22,5 @@ Traditional monolithic systems struggle to scale effectively in the current glob
 
 **Relevance to this project**
 - Backpressure/ack + ordering: FIFO-queue-with-idempotent-consumer and DLQ patterns directly justify the ack-gated dispatch and per-key strict ordering design.
-- Partitioning/keying: hot-spot warning motivates keyed distribution as a load-balancing concern, not just correctness.
+- Partitioning: hot-spot warning motivates key-based distribution as a load-balancing concern, not just correctness.
 - Throughput/scaling: concrete broker benchmarks anchor the "application fit" and throughput argument for asyncio cross-key concurrency.

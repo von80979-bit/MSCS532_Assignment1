@@ -30,7 +30,7 @@ so no downstream ticket has to re-decide *what* the system is. Resolve, via
   (`Map` + a proper O(1) queue such as a linked-list or head-index queue, NOT
   `Array.shift` which is O(n)) and why.
 - **Dispatch algorithm** — per-key strict FIFO ordering; cross-key concurrency on one
-  `asyncio` loop; how a lane advances (ack-gated); how completion (all queues drained)
+  `asyncio` loop; how a queue advances (ack-gated); how completion (all queues drained)
   is detected.
 - **Ack / backpressure** — how acknowledgment gates the next dispatch; what happens on
   slow/failed consumers.

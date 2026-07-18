@@ -11,11 +11,13 @@ export class Producer {
   }
 
   /**
-   * Submit one event: hand it to the manager to route to its queue and dispatch.
+   * Submit one event: hand it to the manager to route to its queue and dispatch. Returns the manager's flow-control
+   * gate — a Promise the producer should `await` so a full queue suspends it (backpressure) until the queue drains.
    * @param {import('./event.js').Event} event
+   * @returns {Promise<void>} resolves once it is safe to submit the next event.
    */
   submit(event) {
-    this.manager.enqueue(event);
+    return this.manager.enqueue(event);
   }
 
   /** Signal that the last event has been submitted. */

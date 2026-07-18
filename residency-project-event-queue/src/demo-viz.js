@@ -367,8 +367,9 @@ async function run() {
 
   console.log = realLog;
   console.error = realErr;
+  // queueCount is 0 here now that drained queues are evicted (Opt A); report distinct keys seen instead.
   stdout.write(SHOW_CURSOR + '\n' +
-    paint(C.amber, `✓ all ${manager.queueCount()} queues drained — ${input.length} events processed, pending=${manager.pending()}`) +
+    paint(C.amber, `✓ all ${manager.keysSeenCount()} queues drained — ${input.length} events processed, pending=${manager.pending()}`) +
     '\n');
 }
 
