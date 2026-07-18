@@ -1,0 +1,12 @@
+{
+  "name": "residency-event-queue",
+  "version": "1.0.0",
+  "description": "Event queue PoC (MSCS-532 residency project)",
+  "type": "module",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node src/main.js",
+    "test": "node --test src/*.test.js > /dev/null 2>&1"
+  },
+  "license": "MIT"
+}
