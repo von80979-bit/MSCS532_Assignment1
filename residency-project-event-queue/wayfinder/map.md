@@ -14,7 +14,7 @@ decide about *what* to build or *how* each report is structured.
 
 ## Notes
 
-**Domain.** Real-time, order event processing with orderking key, implemented in **Node.js /
+**Domain.** Real-time, distributed event queue with orderking key, implemented in **Node.js /
 JavaScript** (the user's original EventStream prototype) and packaged as a **Docker
 image** so the demo runs reproducibly. A hash table (JS `Map`) keys each event's
 ordering key to its own FIFO queue. Events sharing a key are processed strictly in
@@ -26,12 +26,12 @@ queue drains.
 
 **Problem solved (application context).** Many systems apply a stream of state-changing
 operations to shared entities where order matters *per entity* but not globally — for
-example transactions or operations keyed by an account, order, or customer id. Two
+example transactions or operations ordered by an account, order, or customer id. Two
 constraints collide: (1) operations on the *same* entity must apply in arrival order (an
 update must not overtake the create it depends on); (2) processing the whole stream in one
 global sequence is correct but far too slow, and the downstream API gives no ordering
 guarantee, so firing concurrent requests risks out-of-order application and corrupted
-state. The keyed event queue resolves this: partitioning by the ordering key gives strict
+state. The event queue resolves this: partitioning by the ordering key gives strict
 per-entity FIFO while different entities run concurrently (ordering where it matters *plus*
 parallelism), ack-gating enforces the order the API does not, and modeling each unit as an
 event makes failures retryable (an unacked event can be redispatched at its lane head
@@ -85,8 +85,14 @@ outline tickets; `/research` for source work; `/proofreading` later (out of scop
   for Key Partitioning; Custom FIFO Queue and Ack-Gated Ordering) → Complexity and Space
   Efficiency → Implementation Framing. Prose drafted to WRITING-REQUIREMENTS at
   `reports/phase1-data-structure-design.md`. **Follow-up: revise the Application Context
-  section to add the transaction/keyed-ordering problem framing — see design-spec.md §1
+  section to add the transaction ordering problem framing — see design-spec.md §1
   and Notes "Problem solved".**
+- [Phase 2 report outline — Proof of Concept Implementation](tickets/03-phase2-report-outline.md) —
+  outline LOCKED, mirrors the four official Phase 2 tasks (Partial Implementation →
+  Demonstration of Key Operations → Documentation of Process → Code Quality), cumulative
+  on Phase 1. PoC built and reproducible: `src/` (Map + O(1) linked-list Queue, manager,
+  producer/consumer, unit tests), `demo:viz` TUI, `Dockerfile`, `README.md`. Report prose
+  is downstream.
 
 ## Not yet specified
 

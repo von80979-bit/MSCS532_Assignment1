@@ -4,7 +4,7 @@ Labels: wayfinder:grilling
 Type: HITL
 Status: open
 Blocked by: 01-core-design-spec
-Assignee: (unclaimed)
+Assignee: nguyen.vo
 
 ## Question
 
