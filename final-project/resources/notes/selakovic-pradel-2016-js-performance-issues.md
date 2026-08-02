@@ -1,7 +1,7 @@
 # Performance Issues and Optimizations in JavaScript: An Empirical Study
 
 **APA 7 reference**
-Selakovic, M., & Pradel, M. (2016). Performance issues and optimizations in JavaScript: An empirical study. In *Proceedings of the 38th International Conference on Software Engineering* (pp. 61–72). Association for Computing Machinery. https://doi.org/10.1145/2884781.2884829
+Selakovic, M., & Pradel, M. (2016). Performance issues and optimizations in JavaScript: An empirical study. In *Proceedings of the 38th International Conference on Software Engineering* (pp. 61–72). ACM. https://doi.org/10.1145/2884781.2884829
 
 *Verification.* Every bibliographic field verified against three independent authoritative records, all of which agree. The Crossref REST API record for DOI `10.1145/2884781.2884829` gives type `proceedings-article`, title "Performance issues and optimizations in JavaScript" with subtitle "an empirical study", authors Marija Selakovic and Michael Pradel (both TU Darmstadt, Germany), container title *Proceedings of the 38th International Conference on Software Engineering*, publisher ACM, publisher location New York, NY, USA, pages 61–72, published 14 May 2016, and event `ICSE '16: 38th International Conference on Software Engineering`, Austin, Texas, sponsored by ACM SIGSOFT and IEEE-CS TCSE. DBLP record `conf/icse/SelakovicP16` independently gives venue ICSE, pages 61–72, year 2016. The authors' PDF at https://software-lab.org/publications/icse2016-perf.pdf carries its own footer line "ICSE '16, May 14 - 22, 2016, Austin, TX, USA", ISBN 978-1-4503-3900-1/16/05, and the same DOI, which closes the loop between the metadata and the artifact.
 

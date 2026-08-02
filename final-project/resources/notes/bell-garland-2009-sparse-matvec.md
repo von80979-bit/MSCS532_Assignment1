@@ -1,7 +1,7 @@
 # Implementing Sparse Matrix-Vector Multiplication on Throughput-Oriented Processors
 
 **APA 7 reference**
-Bell, N., & Garland, M. (2009). Implementing sparse matrix-vector multiplication on throughput-oriented processors. In *Proceedings of the Conference on High Performance Computing Networking, Storage and Analysis* (pp. 1–11). Association for Computing Machinery. https://doi.org/10.1145/1654059.1654078
+Bell, N., & Garland, M. (2009). Implementing sparse matrix-vector multiplication on throughput-oriented processors. In *Proceedings of the Conference on High Performance Computing Networking, Storage and Analysis* (SC '09) (pp. 1–11). Association for Computing Machinery. https://doi.org/10.1145/1654059.1654078
 
 *Verification.* Every field was checked against four independent records and they agree.
 

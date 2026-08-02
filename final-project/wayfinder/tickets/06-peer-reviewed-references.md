@@ -4,7 +4,7 @@ Labels: wayfinder:research
 Type: AFK
 Status: closed
 Blocked by: [Justify the optimization technique against the study](02-technique-justification.md)
-Assignee: agent (claimed 2026-08-01)
+Assignee: agent (references re-run, 2026-08-01)
 
 ## Question
 
@@ -26,54 +26,52 @@ Output: notes files under `final-project/resources/notes/`, plus a consolidated 
 
 This ticket contributes to [Lock the report outline](07-report-outline.md).
 
+---
+
+## Added constraint on the re-run (2026-08-01)
+
+An earlier pass resolved this ticket with ten references. The user reopened it with a sourcing rule that the earlier set did not meet: **peer-reviewed papers dated 2017 to today, with genuinely free access, meaning the full text is actually fetched and read rather than reconstructed from training data.** Only one of the earlier eight peer-reviewed sources was inside that window. This resolution re-runs the search under the rule.
+
+**Assumption stated and acted on.** Some claims cannot be carried by a recent paper at all: the algorithm's 1959 origin, and the O(V²) and O((V + E) lg V) bounds Experiment 1 tests. Those three works are retained and clearly marked as **not** counting toward the peer-reviewed three. Everything that does count is 2017 or later and was read in session.
+
 ## Resolution
 
-**Ten references, eight peer-reviewed.** The requirement is six with three peer-reviewed, so both thresholds clear comfortably. Consolidated list at `final-project/resources/references.md`, per-source notes at `final-project/resources/notes/`. Every entry was verified against the source document plus at least two independent bibliographic records, and full text was obtained and read for all eight articles.
+**Six core sources, all peer-reviewed, all 2017 or later, all fetched and read end to end in session.** Consolidated list at `final-project/resources/references.md`; per-source notes in `final-project/resources/notes/`. Nine references total against a requirement of six with three peer-reviewed.
 
-### The final list
+| Source | Year | Venue | Access route, verified by download | Read |
+| --- | --- | --- | --- | --- |
+| Azad, Iqbal, Hassan & Roy | 2023 | MSR (IEEE/ACM) | Authors' free PDF, `foyzulhassan.github.io` | 13 pp. |
+| Barrett, Bolz-Tereick, Killick, Mount & Tratt | 2017 | PACMPL / OOPSLA | ACM gold OA, CC BY 4.0; read via arXiv 1602.00602 | 40 pp. |
+| Duan, Mao, Mao, Shu & Yin | 2025 | ACM STOC | arXiv 2504.17033 | 17 pp. |
+| Elafrou, Goumas & Koziris | 2017 | IEEE ICPP | arXiv 1711.05487 | 10 pp. |
+| Qian, Childers, Huang, Guo & Wang | 2018 | *Electronics* | MDPI gold OA, CC BY 4.0, version of record | 24 pp. |
+| Traini, Cortellessa, Di Pompeo & Tucci | 2023 | *Empirical Software Engineering* | Springer OA, CC BY 4.0, version of record | 57 pp. |
 
-| Source | Status | The job it does |
-| --- | --- | --- |
-| Azad, Iqbal, Hassan & Roy (2023), MSR | peer-reviewed | The assigned study. Taxonomy, both fix categories, the mlpack and CGAL commits, the RQ4 expertise finding. |
-| Dijkstra (1959), *Numerische Mathematik* | peer-reviewed | Origin of the algorithm, and the primary evidence that its own Step 2 names no data structure. |
-| Fredman & Tarjan (1987), *JACM* | peer-reviewed | Dijkstra analysed purely by counting heap operations, with non-heap work fixed at O(n + m). Also the non-negative-weight condition and decrease-key. |
-| Cormen, Leiserson, Rivest & Stein (2022), 4th ed. | book | Both bounds Experiment 1 tests, plus the crossover condition. Heaps, priority queues, BFS, graph representations. |
-| Saad (2003), SIAM, 2nd ed. | book | The three-array CSR definition, and storage format tied directly to high performance computing. |
-| Bell & Garland (2009), SC '09 | peer-reviewed | Sparse storage format as a first-order performance decision, CSR among the formats compared. Carries Experiment 2's peer-reviewed weight. |
-| Beamer, Asanović & Patterson (2015), IISWC | peer-reviewed | Locality as a real concern in graph workloads specifically. |
-| Georges, Buytaert & Eeckhout (2007), OOPSLA | peer-reviewed | The benchmark protocol's defence, and the explicit licence to apply it beyond Java. |
-| Kalibera & Jones (2013), ISMM | peer-reviewed | How many repetitions are actually needed, and why a warm-up heuristic can be badly wrong. |
-| Selakovic & Pradel (2016), ICSE | peer-reviewed | The HPC-to-JavaScript transfer warrant, the harder-test number, and a protocol run on V8 itself. |
+Retained as foundational, not counted toward the peer-reviewed three: Cormen et al. (2022), Dijkstra (1959), Saad (2003).
 
-### What verification changed
+### How each argument point is now covered
 
-Four findings altered the plan rather than confirming it, and the writing session must not undo them.
+- **Dijkstra's cost as a function of the priority queue** — Duan et al. (2025). They describe Dijkstra as working "via a priority queue", give O(m + n log n) for the Fibonacci-heap combination, and attribute the Θ(n log n) explicitly to needing "to maintain a total order between a large number of vertices". A 2025 STOC paper stating the report's own thesis is a considerably better citation than the textbook assertion it replaces. The specific bounds Experiment 1 tests still come from Cormen et al.
+- **CSR, layout and locality** — Qian et al. (2018) as primary, Elafrou et al. (2017) as corroboration. Qian et al. is the find: CSR "the de facto representation for sparse graphs", the three-array graph layout with the row-pointer trick, BFS-over-CSR pseudocode matching the project's loop, and measured locality on nine real graphs at roughly 90% stall rate and 58.9% L1 miss rate. It supports layout and locality without touching cache-miss measurement on V8, exactly as the ticket required.
+- **Data-structure choice as an HPC performance-engineering concern** — Azad et al. (2023), the assigned study, reinforced by Elafrou et al. (2017).
+- **Benchmarking managed and JIT-compiled runtimes** — Barrett et al. (2017) and Traini et al. (2023). Barrett et al. is load-bearing in a way the earlier methodology sources were not, because **it benchmarked V8 itself**, listing "V8 5.4.500.43 (a JIT compiling VM for JavaScript)" among its seven VMs. The TypeScript defence no longer transfers a Java result by analogy; it cites a study of the project's own runtime.
 
-1. **Dijkstra (1959) contains no complexity analysis at all.** No asymptotic notation, no operation count, only a storage argument and the remark that the work "seems to be considerably less." The O(V²) figure is a later attribution and belongs to Cormen et al. The paper also never states the non-negative-weight condition, and its Problem 2 is posed point to point rather than single source. Citing O(V²) to Dijkstra would have been a fabrication in a graded report.
-2. **Fredman & Tarjan's "lazy deletion" is not this project's lazy deletion.** Their Section 3 describes vacant-node deletion in an F-heap, credited to Cheriton and Tarjan, not the duplicate-entry scheme the report's binary heap uses. Same name, different construction. They also never state the binary-heap bound, so O((V + E) lg V) comes from Cormen et al. instead.
-3. **A DOI-to-venue mismatch was caught and corrected.** Both Georges et al. and Kalibera & Jones exist as two separately registered Crossref works, one journal and one proceedings. The pairing this ticket started from named *SIGPLAN Notices* 42(10) alongside the proceedings DOI, which carries no volume or issue, so a grader following it would have landed on a record not showing the fields being claimed. Confirmed directly: `10.1145/1297105.1297033` returns the journal record, `10.1145/1297027.1297033` the proceedings one. The list uses journal form for Georges (APA 7 §10.5) and proceedings form for Kalibera & Jones.
-4. **Two sources support narrower claims than their titles suggest.** Beamer et al. never mention CSR, adjacency lists, or representation choice anywhere, so Experiment 2 needed its own peer-reviewed anchor and Bell & Garland was added to supply it. Selakovic & Pradel have no "inefficient data structure" root cause and nothing on asymptotic complexity, so they cannot be JavaScript-side evidence for data-structure optimization; their role is the transfer warrant, the cross-engine instability finding, and the protocol.
+### What the verification changed
 
-### The two best passages found
+- **Six older sources were displaced, with reasons recorded** in the "Sources considered and set aside" table in `references.md`. Georges et al. (2007) and Kalibera & Jones (2013) are superseded by Barrett et al., which cites both and tests Georges et al.'s coefficient-of-variation heuristic directly, finding it reports steady states for **78.1% of executions it classifies as never reaching one**. Beamer et al. (2015) and Bell & Garland (2009) are displaced by the two CSR papers. Fredman & Tarjan (1987) is displaced by Duan et al., which cites it for exactly the claim wanted. Selakovic & Pradel (2016) misses the window by one year and is covered by Barrett et al. Their notes files remain on disk and remain accurate.
+- **Barrett et al.'s article number rests on DBLP alone.** Crossref and OpenAlex both render the location as pages 1–27; only DBLP gives `52:1-52:27`, which is Article 52 in 27 pages. ACM's landing page returns HTTP 403 to automated requests and could not be opened to confirm. PACMPL numbers articles and starts each at page 1, so the records agree rather than conflict. `*1*(OOPSLA), 1–27` is the fallback if a checker objects.
+- **Two year discrepancies resolved against the record, not guessed.** Semantic Scholar dates Barrett et al. to 2016, which is the arXiv posting year leaking in; Crossref, DBLP and OpenAlex all give 2017. Crossref dates Traini et al. to 2022 online-first while DBLP and the article's own running header give the 2023 volume. Cite 2017 and 2023.
+- **Three sources were read as author copies or extended versions with pagination that does not match the published article** — Barrett et al. (40 pp. vs. 27), Duan et al. (17 pp. vs. 9), Elafrou et al. (author's arXiv copy). Their notes cite by **section number only**. Qian et al. and Traini et al. were read at published pagination.
+- **Qian et al. is not in DBLP**, since that MDPI journal was not indexed for 2018. Verified against Crossref, OpenAlex and Semantic Scholar plus the article's own footer instead. The absence is recorded rather than papered over.
 
-**Cormen et al. §22.3, p. 623** gives both halves of Experiment 1 in consecutive paragraphs, O(V² + E) for the array scan and O((V + E) lg V) for the binary heap, and then states the crossover condition **E = o(V²/lg V)**. That is a published theoretical prediction for the density crossover Sweep B is built to locate, which upgrades the crossover from an observation into a confirmed or refuted prediction. Fourth-edition numbering was confirmed against the book's own table of contents; the graph chapters moved down two from the third edition, so third-edition numbers would have been wrong.
+### Standing cautions the writing session must read first
 
-**Fredman & Tarjan p. 610** analyse Dijkstra by counting heap operations alone (one make-heap, *n* insert, *n* delete-min, at most *m* decrease-key) and then note that "the time for other tasks is O(n + m)." The non-heap work is fixed and linear; only the container term moves. Paired with **Dijkstra p. 270**, where Step 2 asks for "the node with minimum distance" and names no structure, that is a primary citation at each end of the report's "the data structure is the algorithm" thesis.
+Full list in `references.md`. The load-bearing ones:
 
-### Supporting numbers now available
-
-- **Selakovic & Pradel:** 98 fixed issues across 16 projects; only **42.68%** of real merged optimizations improved on all versions of both V8 and SpiderMonkey, and **15.85%** degraded somewhere. This puts a measured number behind the harder-test framing in section 7 of [Justify the optimization technique against the study](02-technique-justification.md).
-- **Georges et al.:** the abstract's transfer licence, that the issues "also apply to other programming languages and systems that build on a managed runtime system." That sentence, not any measurement, is what warrants citing a Java paper in a Node project.
-- **Kalibera & Jones:** their Table 3 shows `avrora9` initialised by iteration 2 but not independent until iteration **128**, where the DaCapo harness reports 4 and the Georges method reports 1. The two methodology sources are mutually reinforcing rather than redundant, and the report must not present a coefficient-of-variation threshold as an authoritative warm-up detector.
-- **Bell & Garland:** Table 1 gives bytes moved per FLOP by format, a 2× range attributable to representation alone. Their §4.3 and §6 also state that on unstructured matrices no single format wins, which is the honest framing if Experiment 2 finds CSR smaller but not uniformly faster.
-- **Saad §3.5:** "data structures may have to change to improve performance when dealing with high performance computers," which ties the CSR definition straight to the study's *data structure optimization* sub-category.
-
-### Fields deliberately absent rather than guessed
-
-Dijkstra carries no issue number: the printed article has none, Springer's own recommended citation, zbMATH, EuDML and DBLP all omit it, and Crossref's `1(1)` is a provable back-file artifact, since all 24 articles in volume 1 are labelled issue 1. Bell & Garland carry a page range rather than an ACM article number, which could not be confirmed without a browser. CLRS omits its ISBN, which APA does not carry anyway, and its page count is contested across records.
-
-### Consequences for downstream tickets
-
-- **[Lock the report outline](07-report-outline.md)** now has its citation map. The crossover condition E = o(V²/lg V) is available as a stated prediction for the Experiment 1 section, which changes how the weaknesses discussion can be framed.
-- **[Lock the benchmark methodology](04-benchmark-methodology.md)** has its defensible protocol sources, including one, Selakovic & Pradel §2.3, that was run on V8 rather than a JVM.
-- No new tickets and no fog graduated. The `## Standing cautions for the writing session` block in `references.md` is the guardrail list; the writing session should read it before drafting.
+- **Duan et al. is pure theory** — no implementation, no benchmark, comparison-addition model, constant-degree graph transformation. Cite for framing and for the O(m + n log n) reference point. Never imply the project implemented it. It gives neither the binary-heap nor the array-scan bound.
+- **Qian et al. never compare CSR against an adjacency list.** That comparison is the project's own contribution and must be presented as such. Their 90% stall rate and 58.9% L1 miss rate come from a simulated CPU-plus-HMC system running C, not from V8.
+- **Barrett et al. measured V8; Traini et al. measured the JVM.** Only Barrett et al. supports "a peer-reviewed study benchmarked the runtime this project uses."
+- **Do not lead with Traini et al.'s 123,937% mean** — heavy-tailed and driven by a few projects. The median of 41% is the figure to use. Do not quote their 89.1% fork figure without the 43.5% benchmark figure.
+- **Do not use a coefficient-of-variation warm-up detector and cite Barrett et al. as support.** Their §8 is a direct criticism of that heuristic.
+- **The project's benchmarking will fall far short of both methodology papers.** Barrett et al. used a dedicated runner with OS-level controls, 30 process executions, 2000 iterations; Traini et al. ran 93 days. The project has a two-minute Docker budget. Cite the standard, state the shortfall, claim no compliance.
+- **Dijkstra (1959) contains no complexity analysis and never states the non-negative-weight condition.** Duan et al. do state that condition, in both the abstract and §2, and are the better citation for it.
